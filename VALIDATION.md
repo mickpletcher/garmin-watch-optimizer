@@ -33,7 +33,7 @@ Validated on 2026-08-30:
 - Python test suite: 58 passed, 1 hardware test skipped.
 - Domain and planning coverage: 93 percent.
 - Ruff: passed.
-- Mypy: passed across 25 source files.
+- Mypy: passed across 28 source files.
 - Fake-device contract: passed through exact app selection, authentication, navigation, Enduro 2 identity, firmware, settings capture, capability manifest, and session cleanup.
 - Failure injection: destructive and all other non-low risks blocked; ambiguous mutation restored and journaled; verification failure restored; restoration failure persisted and failed loudly; journal failure blocked before simulated mutation.
 - Privacy tests: device identifiers, email, phone, token-like values, passwords, and sensitive setting values are removed from persisted artifacts.
@@ -43,7 +43,7 @@ Validated on 2026-08-30:
 - Planning tests: already-compliant, guided, unsupported, unknown, strict-removal, cross-model, and firmware-incompatibility paths passed with zero automatic operations.
 - Offline CLI contract: capture, validation, overlay planning, and ZIP export completed without constructing ADB or Appium services.
 - Local dependency audit: no known vulnerabilities found; the editable project itself is excluded because it is not a published PyPI distribution.
-- GitHub evidence: PR #1 and post-merge Windows, macOS, CodeQL, and Dependabot workflows completed successfully. The expanded Python 3.12 and 3.13 matrix and supply-chain workflow require their first PR run.
+- GitHub evidence: PR #2 passed Python 3.12 and 3.13 on Windows and macOS, CodeQL, dependency review, dependency audit, and CycloneDX SBOM generation. The dependency audit found no known vulnerabilities.
 
 ## Hardware gate
 
