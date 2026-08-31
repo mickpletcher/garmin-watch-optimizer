@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/mickpletcher/garmin-watch-optimizer/schemas/config.schema.json",
+  "title": "Garmin Watch Optimizer Desired Configuration",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "device", "settings"],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "device": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["model"],
+      "properties": {
+        "model": { "const": "Enduro 2" },
+        "firmware": { "type": ["string", "null"] }
+      }
+    },
+    "settings": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "units": { "enum": ["metric", "statute", "statute_uk"] },
+        "time_format": { "enum": ["12_hour", "24_hour", "military"] },
+        "timezone": {
+          "oneOf": [
+            { "const": "auto_gps" },
+            { "type": "string", "minLength": 1 }
+          ]
+        },
+        "favorite_activities": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}

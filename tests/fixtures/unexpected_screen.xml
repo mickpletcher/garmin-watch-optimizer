@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hierarchy rotation="0">
+  <node class="android.widget.FrameLayout" text="" clickable="false" enabled="true">
+    <node class="android.widget.TextView" text="Sign in" clickable="false" enabled="true" />
+    <node class="android.widget.TextView" text="Continue" clickable="true" enabled="true" />
+  </node>
+</hierarchy>
