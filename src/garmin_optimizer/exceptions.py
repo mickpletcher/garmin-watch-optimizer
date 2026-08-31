@@ -68,3 +68,19 @@ class AmbiguousWriteError(OptimizerError):
 
 class JournalWriteError(OptimizerError):
     pass
+
+
+class ConfigurationError(OptimizerError):
+    pass
+
+
+class ConfigurationSecurityError(ConfigurationError):
+    pass
+
+
+class BundleValidationError(ConfigurationError):
+    pass
+
+
+class ArchiveSecurityError(ConfigurationError):
+    pass

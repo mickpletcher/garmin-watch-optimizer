@@ -1,12 +1,12 @@
 # Garmin Watch Optimizer
 
-Garmin Watch Optimizer is an early read-only research tool for discovering visible Garmin Enduro 2 settings through a locally installed Garmin Connect Android app.
+Garmin Watch Optimizer is a local read-only research and configuration-planning tool for Garmin Enduro 2 settings.
 
 It does not change the watch. It does not automate sign-in. It does not call undocumented Garmin cloud APIs. The only write workflow is an in-memory simulation with no ADB or Appium transport.
 
 ## Current status
 
-The project is in Phase 0. It currently provides:
+The project contains a Phase 0 device-research probe and a transport-free Phase 1 configuration foundation. It currently provides:
 
 - Exact Garmin Connect Android package validation.
 - ADB device selection with explicit serial validation.
@@ -14,11 +14,18 @@ The project is in Phase 0. It currently provides:
 - Sign-in detection that stops before navigation when authentication is missing or uncertain.
 - Semantic navigation to Garmin Devices, the selected Enduro 2, and its visible settings page.
 - Read-only watch model and firmware discovery.
-- Sanitized snapshots, capability manifests, Markdown reports, JSON reports, diagnostics, logs, and simulation journals.
+- Stable semantic identifiers for recognized settings and fail-closed hashes for unmapped visible settings.
+- Detailed capability manifests with read support, blocked write support, transport, model, firmware, risk, and evidence.
+- Strict YAML and JSON configuration validation with deterministic overlays and conflict reporting.
+- Sanitized capture bundles with explicit coverage states and SHA-256 integrity verification.
+- Secure bundle ZIP import and export with traversal, link, size, ratio, payload, and checksum defenses.
+- Bundle comparison and snapshot-to-desired-state plans where every mismatch is guided, unsupported, or blocked.
+- Sanitized snapshots, plans, capability manifests, Markdown reports, JSON reports, diagnostics, logs, and simulation journals.
 - A fake-device contract test covering the complete read-only flow.
-- Windows and macOS CI with an enforced 85 percent domain-layer coverage floor.
+- Windows and macOS CI on Python 3.12 and 3.13 with an enforced 85 percent domain-layer coverage floor.
+- Pinned GitHub Actions, CodeQL, dependency review, dependency auditing, and generated CycloneDX SBOM artifacts.
 
-The project does not yet provide configuration bundles, dry-run plans, physical backups, Garmin Express automation, USB/MTP adapters, or watch setting writes.
+The project does not provide physical backups, recursive settings capture, Garmin Express automation, USB/MTP adapters, automatic apply, or watch setting writes. It is not an MVP or a released watch optimizer.
 
 ## Garmin authorization boundary
 
@@ -106,6 +113,23 @@ garmin-opt audit --serial <adb-serial> --watch "Enduro 2"
 
 The audit stops if Garmin Connect shows a sign-in screen or authentication cannot be confirmed. Sign in manually in Garmin Connect. Never provide credentials to this tool.
 
+## Work with captured data offline
+
+These commands never construct ADB or Appium services:
+
+```powershell
+garmin-opt capture --snapshot runtime/snapshots/<snapshot>.json --name "Known Good" --export-zip
+garmin-opt validate runtime/bundles/<bundle>
+garmin-opt validate examples/enduro2.example.yaml
+garmin-opt compare runtime/bundles/<older> runtime/bundles/<newer>
+garmin-opt plan examples/enduro2.example.yaml --snapshot runtime/snapshots/<snapshot>.json
+garmin-opt plan examples/enduro2.example.yaml --snapshot runtime/snapshots/<snapshot>.json --overlay examples/race.overlay.yaml
+garmin-opt bundle export runtime/bundles/<bundle>
+garmin-opt bundle import runtime/exports/<bundle>.zip
+```
+
+Capture bundles contain `config.yaml`, `manifest.json`, and `summary.md`. Imports must contain exactly those files and pass schema, size, path, payload, and checksum validation. Plans contain zero automatic operations.
+
 ## Launch the GUI
 
 The GUI audit button remains disabled unless the environment opt-in is set before launch.
@@ -136,6 +160,10 @@ All runtime artifacts stay under `runtime/` by default and are ignored by Git:
 - `runtime/diagnostics`
 - `runtime/journals`
 - `runtime/logs`
+- `runtime/bundles`
+- `runtime/plans`
+- `runtime/imports`
+- `runtime/exports`
 
 Every persistence service uses the same recursive redaction policy and atomic file replacement. Review artifacts before sharing them because no pattern-based redactor can guarantee removal of every personal value.
 
@@ -145,6 +173,8 @@ Every persistence service uses the same recursive redaction policy and atomic fi
 python -m pytest
 python -m ruff check .
 python -m mypy src
+python -m pip check
+python scripts/generate_schema.py
 ./scripts/docs-check.ps1
 ```
 
@@ -167,3 +197,4 @@ No hardware test performs a watch write.
 - [Adapter boundaries](docs/ADAPTERS.md)
 - [Enduro 2 research](docs/ENDURO2-RESEARCH.md)
 - [Security model](docs/SECURITY.md)
+- [Requirement traceability](TRACEABILITY.md)

@@ -21,15 +21,15 @@ def test_snapshot_diff_save_redaction_and_unique_names(tmp_path: Path) -> None:
     older = SnapshotArtifact(
         host_os="Windows",
         python_version="3.12.0",
-        settings=[setting("a", "Units", "Statute")],
+        settings=[setting("system.a", "Units", "Statute")],
     )
     newer = SnapshotArtifact(
         host_os="Windows",
         python_version="3.12.0",
         device=AndroidDevice(serial="ABCDEF1234567890", state="device"),
         settings=[
-            setting("a", "Units", "test.user@example.com"),
-            setting("b", "Language", "English"),
+            setting("system.a", "Units", "test.user@example.com"),
+            setting("system.b", "Language", "English"),
         ],
     )
 

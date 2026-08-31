@@ -26,7 +26,7 @@ def test_report_is_sanitized_and_never_claims_a_write(tmp_path: Path) -> None:
         screens_reached=["Garmin Devices", "Device Settings"],
         settings=[
             DiscoveredSetting(
-                id="units",
+                id="system.units",
                 screen_path=["Settings"],
                 label="Units",
                 current_value="test.user@example.com",

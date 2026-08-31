@@ -117,7 +117,7 @@ def test_fake_device_contract_covers_read_only_vertical_slice(tmp_path: Path) ->
     assert len(result.snapshot.settings) == 3
     assert result.snapshot.screens_reached[-1] == "Device Settings"
     write = next(item for item in result.manifest.capabilities if item.id == "settings.automatic_write")
-    assert write.access == "blocked"
+    assert write.write_support.value == "unsupported"
 
 
 def test_authentication_failure_closes_session_without_navigation(tmp_path: Path) -> None:

@@ -4,7 +4,9 @@ This matrix records evidence. It does not infer support from passing unit tests.
 
 | Component | Version or target | Windows | macOS | Evidence | Status |
 | --- | --- | --- | --- | --- | --- |
-| Python | 3.12+ | CI configured | CI configured | CI workflow | Automated pending first GitHub run |
+| Python 3.12 | Supported | PR #1 and post-merge CI passed | PR #1 and post-merge CI passed | GitHub Actions CI | Automated validated 2026-08-30 |
+| Python 3.13 | Supported | CI configured | CI configured | Expanded CI matrix | First expanded-matrix run pending |
+| Offline configuration engine | Schema 1.0 | Unit and contract tested | Unit and contract tested | Strict loader, bundle, archive, overlay, comparison, and plan tests | No device transport |
 | Android Platform Tools | Current user installation | Expected | Expected | ADB unit tests and doctor command | Physical pending |
 | Appium | Local server with UiAutomator2 | Expected | Expected | Loopback policy and fake contract | Physical pending |
 | Garmin Connect Android | Exact package `com.garmin.android.apps.connectmobile` | Expected | Expected | Exact package contract test | Version-specific physical pending |

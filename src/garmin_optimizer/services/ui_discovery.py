@@ -12,6 +12,17 @@ from garmin_optimizer.services.redaction import RedactionService
 
 
 class UiDiscoveryService:
+    SEMANTIC_SETTING_IDS = {
+        "activity order": "activities.order",
+        "battery saver": "power.battery_saver",
+        "favorite activities": "activities.favorites",
+        "language": "system.language",
+        "time format": "system.time_format",
+        "time zone": "system.timezone",
+        "timezone": "system.timezone",
+        "units": "system.units",
+    }
+
     def __init__(
         self,
         diagnostics_dir: Path,
@@ -71,7 +82,7 @@ class UiDiscoveryService:
             risk_level = self.classify_risk(label)
             settings.append(
                 DiscoveredSetting(
-                    id=self._make_id(screen_path, resource_id or label),
+                    id=self._make_id(screen_path, resource_id or label, label),
                     screen_path=[self.redactor.redact_text(part) for part in screen_path],
                     label=label,
                     current_value=current_value,
@@ -108,9 +119,12 @@ class UiDiscoveryService:
                     values.append(value)
         return values
 
-    def _make_id(self, screen_path: list[str], stable_value: str) -> str:
+    def _make_id(self, screen_path: list[str], stable_value: str, label: str) -> str:
+        semantic_id = self.SEMANTIC_SETTING_IDS.get(label.casefold())
+        if semantic_id:
+            return semantic_id
         raw = "/".join(screen_path + [stable_value.strip().casefold()])
-        return hashlib.sha256(raw.encode("utf-8")).hexdigest()[:20]
+        return f"observed.{hashlib.sha256(raw.encode('utf-8')).hexdigest()[:20]}"
 
     def _looks_like_noise(self, value: str) -> bool:
         if len(value) <= 1 or value.isdigit():

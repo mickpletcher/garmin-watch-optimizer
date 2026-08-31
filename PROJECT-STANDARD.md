@@ -4,7 +4,7 @@
 
 - Standard: Software Project Living Documentation Standard 2.2.
 - Tier: 2, System.
-- Lifecycle: Greenfield, Phase 0.
+- Lifecycle: Greenfield, Phase 0 research with a transport-free Phase 1 foundation.
 - Requirements authority: `REQUIREMENTS.md` is a living product requirements document.
 - Physical impact: Any future production write path is a Class 4 architectural and security change.
 
@@ -28,7 +28,7 @@ The machine-readable mirror is `.docs-authority.json`.
 | Development rules | `PROJECT-STANDARD.md` |
 | Agent rules | `AGENTS.md` |
 
-Supporting evidence lives in `docs/COMPATIBILITY.md`, `docs/ADAPTERS.md`, `docs/ENDURO2-RESEARCH.md`, and `docs/SECURITY.md`. Those files do not replace the authorities above.
+Supporting evidence lives in `TRACEABILITY.md`, `docs/COMPATIBILITY.md`, `docs/ADAPTERS.md`, `docs/ENDURO2-RESEARCH.md`, and `docs/SECURITY.md`. Those files do not replace the authorities above.
 
 ## Change classes
 
@@ -55,8 +55,9 @@ Before changing code, read:
 A change is complete only when:
 
 - The behavior is implemented without enabling physical writes.
-- Tests cover success and important failure paths.
-- `python -m pytest`, Ruff, Mypy, and `scripts/docs-check.ps1` pass.
+- Tests cover success, important failure paths, malicious imports, and transport isolation.
+- `python -m pytest`, Ruff, Mypy, `pip check`, schema drift verification, and `scripts/docs-check.ps1` pass.
+- The dependency audit reports no known vulnerability, excluding the unpublished editable project itself.
 - Required authorities and supporting evidence are updated.
 - The diff contains no runtime artifacts, credentials, personal identifiers, or generated package metadata.
 - Hardware-dependent claims remain pending until recorded physical evidence exists.

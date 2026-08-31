@@ -6,6 +6,8 @@ The supported system is local and read only. Android UI research is disabled by 
 
 Official Garmin sources reviewed on 2026-08-30 did not affirmatively authorize local Android accessibility automation. Garmin's Terms of Use prohibit automated access to Garmin Site content through methods Garmin did not purposely provide and restrict exploitation or reverse engineering of downloaded software. Those terms do not clearly decide this exact local read-only app scenario. See ADR-002.
 
+Untrusted configuration and archive handling is governed by ADR-003.
+
 This is a conservative engineering policy, not legal advice.
 
 ## Protected assets
@@ -32,12 +34,17 @@ This is a conservative engineering policy, not legal advice.
 | Destructive setting accepted | Typed risk enum. Simulation accepts only explicit low risk. Unknown defaults to high. |
 | Artifact corruption or collision | Unique microsecond filenames and atomic same-directory replacement. |
 | Accidental publication | Runtime and generated package metadata are Git-ignored. CI uses synthetic fixtures. |
+| Malicious configuration | Strict models, safe YAML loading, blocked tags/anchors/aliases, size limits, unknown-key rejection, and sensitive-key rejection. |
+| Malicious bundle archive | Exact member allowlist, path and link checks, compressed and expanded size limits, compression-ratio limits, safe parsing, and SHA-256 verification. |
+| Dependency compromise or known vulnerability | Pinned GitHub Actions, CodeQL, dependency review, `pip-audit`, and generated CycloneDX SBOM artifacts. |
 
 ## Redaction policy
 
 The redactor removes configured sensitive keys and common email, phone, token, device identifier, UUID, and secret assignment patterns. Values under sensitive setting labels are replaced entirely. Device serials are never persisted in clear text.
 
 Pattern redaction is not a complete data-loss-prevention system. Users must review artifacts before sharing them. Screenshots are not part of the supported audit flow.
+
+SHA-256 values, validated semantic setting identifiers, and tool-generated 32-character job, operation, and transaction identifiers remain visible only under their exact typed keys. Integrity and report correlation depend on those values. The same strings under any other key are redacted as untrusted identifiers.
 
 ## Prohibited behavior
 
@@ -50,6 +57,7 @@ Pattern redaction is not a complete data-loss-prevention system. Users must revi
 - Unattended research sessions.
 - Physical watch or account writes.
 - Personal health, contact, network, payment, or location fixtures.
+- YAML object tags, anchors, aliases, symbolic links, executable archive payloads, and archive paths outside the bundle root.
 
 ## Future write gate
 

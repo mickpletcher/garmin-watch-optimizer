@@ -1,39 +1,139 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/mickpletcher/garmin-watch-optimizer/schemas/config.schema.json",
-  "title": "Garmin Watch Optimizer Desired Configuration",
-  "type": "object",
-  "additionalProperties": false,
-  "required": ["schema_version", "device", "settings"],
-  "properties": {
-    "schema_version": { "const": "1.0" },
-    "device": {
-      "type": "object",
+  "$defs": {
+    "ApplyPolicy": {
       "additionalProperties": false,
-      "required": ["model"],
       "properties": {
-        "model": { "const": "Enduro 2" },
-        "firmware": { "type": ["string", "null"] }
-      }
+        "mode": {
+          "default": "merge",
+          "enum": [
+            "merge",
+            "strict"
+          ],
+          "title": "Mode",
+          "type": "string"
+        },
+        "backup_before_apply": {
+          "const": true,
+          "default": true,
+          "title": "Backup Before Apply",
+          "type": "boolean"
+        },
+        "verify_after_apply": {
+          "const": true,
+          "default": true,
+          "title": "Verify After Apply",
+          "type": "boolean"
+        },
+        "unsupported": {
+          "default": "report",
+          "enum": [
+            "report",
+            "block"
+          ],
+          "title": "Unsupported",
+          "type": "string"
+        },
+        "require_confirmation_for_high_risk": {
+          "const": true,
+          "default": true,
+          "title": "Require Confirmation For High Risk",
+          "type": "boolean"
+        }
+      },
+      "title": "ApplyPolicy",
+      "type": "object"
+    },
+    "ConfigurationTarget": {
+      "additionalProperties": false,
+      "properties": {
+        "manufacturer": {
+          "const": "Garmin",
+          "default": "Garmin",
+          "title": "Manufacturer",
+          "type": "string"
+        },
+        "models": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Models",
+          "type": "array"
+        },
+        "minimum_firmware": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Minimum Firmware"
+        }
+      },
+      "required": [
+        "models"
+      ],
+      "title": "ConfigurationTarget",
+      "type": "object"
+    },
+    "JsonValue": {},
+    "ProfileMetadata": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "default": "",
+          "maxLength": 500,
+          "title": "Description",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "ProfileMetadata",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "1.0",
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "profile": {
+      "$ref": "#/$defs/ProfileMetadata"
+    },
+    "target": {
+      "$ref": "#/$defs/ConfigurationTarget"
+    },
+    "apply_policy": {
+      "$ref": "#/$defs/ApplyPolicy"
     },
     "settings": {
-      "type": "object",
-      "additionalProperties": false,
-      "properties": {
-        "units": { "enum": ["metric", "statute", "statute_uk"] },
-        "time_format": { "enum": ["12_hour", "24_hour", "military"] },
-        "timezone": {
-          "oneOf": [
-            { "const": "auto_gps" },
-            { "type": "string", "minLength": 1 }
-          ]
-        },
-        "favorite_activities": {
-          "type": "array",
-          "uniqueItems": true,
-          "items": { "type": "string", "minLength": 1 }
-        }
-      }
+      "additionalProperties": {
+        "$ref": "#/$defs/JsonValue"
+      },
+      "title": "Settings",
+      "type": "object"
     }
-  }
+  },
+  "required": [
+    "profile",
+    "target"
+  ],
+  "title": "DesiredConfiguration",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/mickpletcher/garmin-watch-optimizer/schemas/config.schema.json"
 }

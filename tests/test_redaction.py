@@ -27,3 +27,27 @@ def test_sensitive_setting_values_are_suppressed() -> None:
     assert redactor.redact_setting_value("Units", "Metric") == "Metric"
     nested = redactor.redact_data({"label": "Emergency Contact", "current_value": "Sample Person"})
     assert nested["current_value"] == "<redacted-sensitive-value>"
+
+
+def test_sha256_digest_is_the_only_long_identifier_allowlist() -> None:
+    redactor = RedactionService()
+    digest = "a1" * 32
+    generated = "a1" * 16
+    semantic = "observed.0123456789abcdef"
+    payload = redactor.redact_data(
+        {
+            "sha256": digest,
+            "job_id": generated,
+            "setting_id": semantic,
+            "identifier": digest,
+            "untrusted_job": generated,
+            "untrusted_semantic": semantic,
+        }
+    )
+
+    assert payload["sha256"] == digest
+    assert payload["job_id"] == generated
+    assert payload["setting_id"] == semantic
+    assert payload["identifier"] == "<redacted-id>"
+    assert payload["untrusted_job"] == "<redacted-id>"
+    assert payload["untrusted_semantic"] == "observed.<redacted-id>"

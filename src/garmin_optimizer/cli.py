@@ -4,16 +4,20 @@ import argparse
 import json
 import platform
 import sys
+from pathlib import Path
 
 from garmin_optimizer.config import AppConfig
-from garmin_optimizer.exceptions import AndroidUiResearchDisabledError, OptimizerError
+from garmin_optimizer.exceptions import AndroidUiResearchDisabledError, BundleValidationError, OptimizerError
 from garmin_optimizer.logging_utils import setup_logging
 from garmin_optimizer.models import DiscoveredSetting, RiskLevel
 from garmin_optimizer.services.adb_service import AdbService
 from garmin_optimizer.services.appium_service import AppiumService
+from garmin_optimizer.services.bundle_service import ConfigurationBundleService
 from garmin_optimizer.services.capability_service import CapabilityService
+from garmin_optimizer.services.configuration_service import ConfigurationService
 from garmin_optimizer.services.garmin_app_discovery import GarminAppDiscoveryService
 from garmin_optimizer.services.journal_service import TransactionJournalService
+from garmin_optimizer.services.planning_service import PlanningService
 from garmin_optimizer.services.read_only_audit import ReadOnlyAuditService
 from garmin_optimizer.services.redaction import RedactionService
 from garmin_optimizer.services.report_service import PocReportService
@@ -47,6 +51,31 @@ def build_parser() -> argparse.ArgumentParser:
     audit.add_argument("--watch", default=None)
     audit.add_argument("--enable-android-ui-research", action="store_true")
 
+    capture = sub.add_parser("capture")
+    capture.add_argument("--snapshot", required=True)
+    capture.add_argument("--name", required=True)
+    capture.add_argument("--description", default="")
+    capture.add_argument("--export-zip", action="store_true")
+
+    validate = sub.add_parser("validate")
+    validate.add_argument("path")
+
+    compare = sub.add_parser("compare")
+    compare.add_argument("older")
+    compare.add_argument("newer")
+
+    plan = sub.add_parser("plan")
+    plan.add_argument("configuration")
+    plan.add_argument("--snapshot", required=True)
+    plan.add_argument("--overlay", action="append", default=[])
+
+    bundle = sub.add_parser("bundle")
+    bundle_sub = bundle.add_subparsers(dest="bundle_command", required=True)
+    bundle_export = bundle_sub.add_parser("export")
+    bundle_export.add_argument("path")
+    bundle_import = bundle_sub.add_parser("import")
+    bundle_import.add_argument("path")
+
     simulate = sub.add_parser("simulate-write-test")
     simulate.add_argument("--confirm-simulation", action="store_true")
     simulate.add_argument(
@@ -68,6 +97,22 @@ def _base_services() -> tuple[AppConfig, RedactionService]:
 
 def _select_device(adb: AdbService, serial: str | None):
     return adb.select_device(adb.list_devices(), serial)
+
+
+def _offline_services(
+    config: AppConfig,
+    redactor: RedactionService,
+) -> tuple[ConfigurationService, ConfigurationBundleService, PlanningService]:
+    configuration = ConfigurationService(redactor)
+    bundles = ConfigurationBundleService(
+        bundles_dir=config.bundles_dir,
+        imports_dir=config.imports_dir,
+        exports_dir=config.exports_dir,
+        configuration=configuration,
+        redactor=redactor,
+    )
+    planning = PlanningService(config.plans_dir, redactor)
+    return configuration, bundles, planning
 
 
 def _require_research_opt_in(args: argparse.Namespace, config: AppConfig) -> None:
@@ -133,6 +178,80 @@ def run(args: argparse.Namespace) -> int:
         from garmin_optimizer.ui.main_window import launch_gui
 
         return launch_gui()
+
+    if args.command in {"capture", "validate", "compare", "plan", "bundle"}:
+        configuration, bundles, planning = _offline_services(config, redactor)
+        if args.command == "capture":
+            snapshot = bundles.load_snapshot(Path(args.snapshot))
+            bundle_path = bundles.capture(snapshot, args.name, args.description)
+            validation = bundles.require_valid(bundle_path)
+            print(f"Bundle: {bundle_path}")
+            print(f"Integrity: {'valid' if validation.valid else 'invalid'}")
+            if args.export_zip:
+                print(f"Archive: {bundles.export_archive(bundle_path)}")
+            print("Device transport used: No")
+            return 0
+        if args.command == "validate":
+            path = Path(args.path)
+            if path.is_dir():
+                result = bundles.validate(path)
+                print(result.model_dump_json(indent=2))
+                if not result.valid:
+                    raise BundleValidationError("Bundle validation failed.")
+            else:
+                loaded = configuration.load(path)
+                print(
+                    json.dumps(
+                        {
+                            "valid": True,
+                            "schema_version": loaded.schema_version,
+                            "profile": redactor.redact_text(loaded.profile.name),
+                            "setting_count": len(loaded.settings),
+                        },
+                        indent=2,
+                    )
+                )
+            return 0
+        if args.command == "compare":
+            older = bundles.load_configuration(Path(args.older))
+            newer = bundles.load_configuration(Path(args.newer))
+            comparison = planning.compare(older, newer)
+            json_path, markdown_path = planning.save(comparison, "comparison")
+            differences = sum(
+                item.classification.value != "already_compliant" for item in comparison.operations
+            )
+            print(f"JSON report: {json_path}")
+            print(f"Markdown report: {markdown_path}")
+            print(f"Differences: {differences}")
+            print("Device transport used: No")
+            return 0
+        if args.command == "plan":
+            desired = bundles.load_configuration(Path(args.configuration))
+            overlays = [configuration.load_overlay(Path(item)) for item in args.overlay]
+            if overlays:
+                resolution = configuration.resolve_overlays(desired, overlays)
+                desired = resolution.configuration
+                for conflict in resolution.conflicts:
+                    print(
+                        "Overlay conflict resolved by order: "
+                        f"{conflict.setting_id} ({conflict.previous_overlay} -> {conflict.replacing_overlay})"
+                    )
+            snapshot = bundles.load_snapshot(Path(args.snapshot))
+            observed = planning.observed_from_snapshot(snapshot)
+            change_plan = planning.plan(desired, observed)
+            json_path, markdown_path = planning.save(change_plan)
+            print(f"JSON plan: {json_path}")
+            print(f"Markdown plan: {markdown_path}")
+            print(f"Operations: {len(change_plan.operations)}")
+            print("Automatic operations: 0")
+            print("Device transport used: No")
+            return 0
+        if args.bundle_command == "export":
+            print(f"Archive: {bundles.export_archive(Path(args.path))}")
+            return 0
+        if args.bundle_command == "import":
+            print(f"Imported bundle: {bundles.import_archive(Path(args.path))}")
+            return 0
 
     adb = AdbService()
     appium = AppiumService(config.appium_url)

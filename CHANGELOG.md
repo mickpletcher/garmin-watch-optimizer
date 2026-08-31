@@ -1,6 +1,21 @@
 # Changelog
 
-## 2026-08-30
+## 0.3.0 - 2026-08-30
+
+- Added strict YAML and JSON desired-state models, generated schema drift enforcement, safe parsing, and sensitive-input blocking.
+- Added deterministic ordered overlays with conflict reporting.
+- Added sanitized configuration capture bundles with explicit coverage states and SHA-256 integrity validation.
+- Added secure ZIP import and export with path, link, size, compression-ratio, payload, and checksum defenses.
+- Added read-only bundle comparison and snapshot planning with model and firmware compatibility gates and zero automatic operations.
+- Added ADR-003 for the offline configuration and archive trust boundary.
+- Added stable semantic identifiers for recognized settings and deterministic hashes for unmapped visible rows.
+- Expanded capability manifests with explicit read and write support, adapter, transport, constraints, side effects, rollback, risk, and evidence.
+- Added offline CLI capture, validate, compare, plan, bundle import, and bundle export commands that do not construct device transports.
+- Added property-based idempotency tests, malicious-input tests, schema golden tests, and offline transport-isolation tests.
+- Expanded CI to Python 3.12 and 3.13 on Windows and macOS, pinned Actions, and added dependency review, vulnerability auditing, and CycloneDX SBOM generation.
+- Added requirement traceability and reconciled all Tier 2 authorities with the implemented scope.
+
+## 0.2.0 - 2026-08-30
 
 - Reconciled local history with the remote requirements commit and promoted the newer Revision 3 additions into Revision 4.
 - Resolved Garmin Connect Android automation as disabled-by-default, opt-in, local, read-only research with no claim of Garmin authorization.

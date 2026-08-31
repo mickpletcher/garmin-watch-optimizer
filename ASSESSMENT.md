@@ -2,7 +2,7 @@
 
 ## Status
 
-The repository contains a tested Phase 0 read-only vertical slice. It is not an MVP and has no production write capability.
+The repository contains a tested Phase 0 read-only vertical slice plus a transport-free configuration and planning engine. It is not an MVP and has no production write capability.
 
 Completed:
 
@@ -12,11 +12,17 @@ Completed:
 - Authentication detection and fail-closed navigation.
 - Fake-device contract from Android discovery through sanitized capture.
 - Watch model and firmware capture.
-- Capability manifest with automatic writes marked unavailable.
+- Capability manifest with explicit read support, unsupported write support, adapter, transport, model, firmware, risk, and evidence.
 - Central redaction and atomic persistence.
 - In-memory write simulation with strict risk validation, journaling, ambiguous failure handling, and restoration verification.
-- Windows and macOS CI plus CodeQL workflow.
+- Strict YAML and JSON desired-state validation with deterministic overlays.
+- Sanitized capture bundles with coverage states and SHA-256 integrity records.
+- Secure ZIP import and export with traversal, link, size, compression-ratio, and checksum defenses.
+- Read-only bundle comparison and snapshot planning with no automatic operations.
+- Generated configuration schema with CI drift enforcement.
+- Windows and macOS CI for Python 3.12 and 3.13, plus CodeQL, dependency review, dependency audit, and SBOM generation.
 - Tier 2 documentation authority mapping.
+- Requirement traceability for implemented and blocked scope.
 
 Not completed:
 
@@ -24,7 +30,9 @@ Not completed:
 - Written Garmin authorization or qualified legal conclusion for Android UI automation.
 - Garmin Express research.
 - USB/MTP and native backup research.
-- Configuration bundle, diff, plan, backup catalog, resume, rollback, or real adapter work.
+- Recursive settings coverage and localization.
+- Backup catalog, guided-action UI, job resume, rollback, or real production adapter work.
+- Signed installers and release signing.
 
 ## Release decision
 
