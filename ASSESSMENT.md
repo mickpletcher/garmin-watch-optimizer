@@ -21,6 +21,8 @@ Completed:
 - Read-only bundle comparison and snapshot planning with no automatic operations.
 - Generated configuration schema with CI drift enforcement.
 - Windows and macOS CI for Python 3.12 and 3.13, plus CodeQL, dependency review, dependency audit, and SBOM generation.
+- Administrator-enforced `main` protection with strict required checks, squash-only merges, blocked history rewrites, and automatic source-branch cleanup.
+- Read-only Actions defaults, secret scanning with push protection, Dependabot alerts, security updates, and monthly dependency updates.
 - Tier 2 documentation authority mapping.
 - Requirement traceability for implemented and blocked scope.
 

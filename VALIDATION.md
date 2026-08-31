@@ -44,6 +44,8 @@ Validated on 2026-08-30:
 - Offline CLI contract: capture, validation, overlay planning, and ZIP export completed without constructing ADB or Appium services.
 - Local dependency audit: no known vulnerabilities found; the editable project itself is excluded because it is not a published PyPI distribution.
 - GitHub evidence: PR #2 passed Python 3.12 and 3.13 on Windows and macOS, CodeQL, dependency review, dependency audit, and CycloneDX SBOM generation. The dependency audit found no known vulnerabilities.
+- Post-merge evidence: CI, CodeQL, supply-chain security, and dependency-graph generation passed on squash commit `3d5355d`.
+- Repository governance: `main` requires pull requests and all eight checks with administrator enforcement, linear history, resolved conversations, blocked force pushes and deletion, and squash-only merges. Actions defaults to read-only permissions. Secret scanning, push protection, Dependabot alerts, and Dependabot security updates are enabled.
 
 ## Hardware gate
 

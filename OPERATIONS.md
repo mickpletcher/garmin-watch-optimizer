@@ -61,6 +61,16 @@ All generated bundles, plans, imports, and exports remain below `GARMIN_OPT_RUNT
 
 Artifacts are local and Git-ignored. They are not encrypted. The shared redaction layer reduces exposure but cannot guarantee removal of every personal value. Review files manually before sharing. Delete them using normal operating-system file controls when no longer needed.
 
+## Repository governance
+
+- Submit every change to `main` through a pull request.
+- Wait for all eight required checks before squash merge: four operating-system and Python jobs, CodeQL analysis, the CodeQL code-scanning result, dependency audit, and dependency review.
+- Resolve every review conversation before merge.
+- Do not bypass administrator enforcement, rewrite `main`, or delete `main`.
+- Keep Actions default permissions read only. Grant narrower write permissions only in a reviewed workflow job that needs them.
+- Dependabot opens monthly version-update pull requests and security-update pull requests. Treat those like any other change and require the full gate.
+- Confirm post-merge CI, CodeQL, supply-chain security, and dependency-graph generation on `main` before closing delivery work.
+
 ## Recovery
 
 The read-only audit does not change watch state. If a session fails, close Appium, reopen Garmin Connect manually, confirm the watch is connected, and rerun `garmin-opt doctor`. A failed simulation affects only process memory and its local journal.

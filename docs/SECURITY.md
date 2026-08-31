@@ -36,7 +36,9 @@ This is a conservative engineering policy, not legal advice.
 | Accidental publication | Runtime and generated package metadata are Git-ignored. CI uses synthetic fixtures. |
 | Malicious configuration | Strict models, safe YAML loading, blocked tags/anchors/aliases, size limits, unknown-key rejection, and sensitive-key rejection. |
 | Malicious bundle archive | Exact member allowlist, path and link checks, compressed and expanded size limits, compression-ratio limits, safe parsing, and SHA-256 verification. |
-| Dependency compromise or known vulnerability | Pinned GitHub Actions, CodeQL, dependency review, `pip-audit`, and generated CycloneDX SBOM artifacts. |
+| Dependency compromise or known vulnerability | Pinned GitHub Actions, CodeQL, dependency review, `pip-audit`, generated CycloneDX SBOM artifacts, Dependabot alerts, and security-update pull requests. |
+| Secret committed to Git | GitHub secret scanning and push protection, plus central runtime redaction and ignored runtime paths. |
+| Protected branch bypass or history rewrite | Administrator-enforced pull requests, strict required checks, linear history, squash-only merges, and blocked force pushes and deletion. |
 
 ## Redaction policy
 

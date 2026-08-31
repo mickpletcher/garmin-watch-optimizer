@@ -13,6 +13,8 @@
 - Added offline CLI capture, validate, compare, plan, bundle import, and bundle export commands that do not construct device transports.
 - Added property-based idempotency tests, malicious-input tests, schema golden tests, and offline transport-isolation tests.
 - Expanded CI to Python 3.12 and 3.13 on Windows and macOS, pinned Actions, and added dependency review, vulnerability auditing, and CycloneDX SBOM generation.
+- Protected `main` with administrator-enforced pull requests, strict validation gates, linear history, blocked force pushes and deletion, squash-only merges, and automatic branch cleanup.
+- Enabled read-only Actions defaults, secret scanning with push protection, Dependabot alerts, security update pull requests, and monthly dependency updates.
 - Added requirement traceability and reconciled all Tier 2 authorities with the implemented scope.
 
 ## 0.2.0 - 2026-08-30
