@@ -10,17 +10,17 @@
 
 ## Phase 1 configuration engine
 
-- Versioned YAML schema and generated JSON Schema.
-- Capture bundles with checksums and explicit captured, partial, unavailable, and excluded states.
-- Bundle-to-bundle comparison.
-- Desired-state diff, dry-run plan, overlays, dependency ordering, and job journals.
+- Local backup catalog with inspect, search, import, export, and recoverable deletion.
+- Guided-action library with model-specific steps and independent re-verification.
+- Dependency ordering once evidence supports multi-step guided plans.
 - Fake adapters for disconnect, partial failure, resume, rollback, and idempotency.
+- GUI workflows for bundle capture, validation, comparison, and planning.
 
 ## Later phases
 
 - Guided on-watch actions.
 - Activity favorites and ordering workflow.
 - Garmin Express adapter only where supported and authorized.
-- Signed installers, SBOM, dependency audit, release signing, and update policy.
+- Signed installers, release signing, and update policy.
 - Additional first-party watch capability profiles.
 - Third-party plugins only after sandboxing, permissions, signing, and trust contracts exist.

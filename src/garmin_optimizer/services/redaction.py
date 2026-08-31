@@ -8,6 +8,9 @@ from typing import Any
 
 class RedactionService:
     REDACTED = "<redacted>"
+    SAFE_HASH_KEYS = {"sha256"}
+    SAFE_GENERATED_ID_KEYS = {"job_id", "operation_id", "transaction_id"}
+    SAFE_SEMANTIC_ID_KEYS = {"id", "setting_id"}
     SENSITIVE_KEYS = {
         "authorization",
         "cookie",
@@ -102,6 +105,27 @@ class RedactionService:
     def redact_data(self, value: Any, key: str | None = None) -> Any:
         if key and key.casefold() in self.SENSITIVE_KEYS:
             return self.REDACTED
+        if (
+            key
+            and key.casefold() in self.SAFE_HASH_KEYS
+            and isinstance(value, str)
+            and re.fullmatch(r"[0-9a-f]{64}", value)
+        ):
+            return value
+        if (
+            key
+            and key.casefold() in self.SAFE_GENERATED_ID_KEYS
+            and isinstance(value, str)
+            and re.fullmatch(r"[0-9a-f]{32}", value)
+        ):
+            return value
+        if (
+            key
+            and key.casefold() in self.SAFE_SEMANTIC_ID_KEYS
+            and isinstance(value, str)
+            and re.fullmatch(r"[a-z][a-z0-9_-]*(?:\.[a-z0-9_-]+)+", value)
+        ):
+            return value
         if isinstance(value, str):
             return self.redact_text(value)
         if isinstance(value, Mapping):

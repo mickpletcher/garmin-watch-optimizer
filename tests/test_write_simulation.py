@@ -18,7 +18,7 @@ from garmin_optimizer.services.write_simulation import SimulationHooks, WriteSim
 
 def candidate(risk: RiskLevel = RiskLevel.LOW, writable: bool = True) -> DiscoveredSetting:
     return DiscoveredSetting(
-        id="units",
+        id="simulation.units",
         screen_path=["Simulation"],
         label="Units",
         current_value="Statute",

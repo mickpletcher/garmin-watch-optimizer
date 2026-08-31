@@ -32,6 +32,15 @@ The Garmin Connect Android research probe is outside the production adapter prio
 - Device dependencies: None.
 - Writes: Cannot reach Android, Garmin Connect, Garmin cloud, or a watch.
 
+### Offline configuration and planning services
+
+- Status: Implemented.
+- Access: Local files under the configured runtime directory.
+- Purpose: Validate desired state, capture integrity-checked bundles, resolve overlays, compare bundles, and generate plans.
+- Device dependencies: None. CLI contract tests fail if these commands construct ADB or Appium.
+- Apply behavior: Every mismatch is guided, unsupported, unknown, or blocked. Automatic operation count is always zero.
+- Import boundary: Strict YAML or JSON plus exact-member ZIP validation with size, path, link, payload, and checksum controls.
+
 ## Planned production contract
 
 Future production adapters must expose explicit capability methods rather than a generic command channel:

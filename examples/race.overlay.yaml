@@ -1,0 +1,5 @@
+schema_version: "1.0"
+name: Race
+settings:
+  power.battery_saver: disabled
+  system.units: Metric

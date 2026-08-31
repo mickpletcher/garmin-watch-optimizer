@@ -15,6 +15,21 @@ The supported operating mode is local read-only research. Physical writes are bl
 7. Review the policy notice in `README.md` and `docs/SECURITY.md`.
 8. Run the audit with the explicit research flag.
 
+## Offline workflow
+
+Offline commands do not require ADB, Appium, a phone, or a watch:
+
+```powershell
+garmin-opt capture --snapshot runtime/snapshots/<snapshot>.json --name "Known Good"
+garmin-opt validate runtime/bundles/<bundle>
+garmin-opt compare runtime/bundles/<older> runtime/bundles/<newer>
+garmin-opt plan examples/enduro2.example.yaml --snapshot runtime/snapshots/<snapshot>.json
+garmin-opt bundle export runtime/bundles/<bundle>
+garmin-opt bundle import runtime/exports/<bundle>.zip
+```
+
+All generated bundles, plans, imports, and exports remain below `GARMIN_OPT_RUNTIME_DIR`. A plan never applies a change and always reports zero automatic operations.
+
 ## Configuration
 
 | Environment variable | Default | Purpose |
@@ -38,6 +53,9 @@ The supported operating mode is local read-only research. Physical writes are bl
 - Unexpected control or screen: close the session and report the missing semantic control.
 - Persistence failure: fail the operation. Do not report success.
 - Simulation ambiguity: journal the ambiguity, restore the in-memory value, verify restoration, and fail loudly.
+- Invalid configuration: reject malformed syntax, unknown fields, unstable identifiers, secrets, complex YAML features, or oversized input.
+- Invalid bundle: fail on missing or unexpected members, schema errors, links, or checksum mismatches.
+- Invalid archive: fail before extraction on traversal, links, size, compression-ratio, payload, or checksum violations.
 
 ## Artifact handling
 

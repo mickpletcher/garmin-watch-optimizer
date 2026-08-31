@@ -46,3 +46,19 @@ class AppConfig(BaseModel):
     @property
     def journals_dir(self) -> Path:
         return self.runtime_dir / "journals"
+
+    @property
+    def bundles_dir(self) -> Path:
+        return self.runtime_dir / "bundles"
+
+    @property
+    def plans_dir(self) -> Path:
+        return self.runtime_dir / "plans"
+
+    @property
+    def imports_dir(self) -> Path:
+        return self.runtime_dir / "imports"
+
+    @property
+    def exports_dir(self) -> Path:
+        return self.runtime_dir / "exports"

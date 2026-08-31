@@ -1,14 +1,27 @@
 schema_version: "1.0"
-device:
-  model: "Enduro 2"
-  firmware: null
+profile:
+  name: Enduro 2 Daily
+  description: Portable read-only desired state example
+target:
+  manufacturer: Garmin
+  models:
+    - Enduro 2
+  minimum_firmware: null
+apply_policy:
+  mode: merge
+  backup_before_apply: true
+  verify_after_apply: true
+  unsupported: report
+  require_confirmation_for_high_risk: true
 settings:
-  units: metric
-  time_format: 24_hour
-  timezone: auto_gps
-  favorite_activities:
+  activities.favorites:
     - trail_run
     - bike
+  power.battery_saver: auto
+  system.language: English
+  system.time_format: 24_hour
+  system.timezone: auto_gps
+  system.units: Metric
 
-# This is a non-personal schema example. The current Phase 0 application does
-# not import, plan, or apply this file.
+# Validation, comparison, and planning are read only. Plans never contain an
+# automatic operation because no physical write adapter exists.

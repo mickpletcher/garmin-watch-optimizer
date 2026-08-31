@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-from garmin_optimizer.models import CapabilitySupport, DiscoveredSetting, GarminApp, GarminDevice, RiskLevel
+from garmin_optimizer.models import DiscoveredSetting, GarminApp, GarminDevice, RiskLevel, WriteSupport
 from garmin_optimizer.services.capability_service import CapabilityService
 from garmin_optimizer.services.redaction import RedactionService
 
@@ -13,7 +13,7 @@ def test_manifest_marks_write_capability_unavailable(tmp_path: Path) -> None:
         GarminDevice(display_name="Enduro 2", model_hint="Enduro 2", firmware_version="18.16"),
         [
             DiscoveredSetting(
-                id="units",
+                id="system.units",
                 screen_path=["Settings"],
                 label="Units",
                 current_value="Metric",
@@ -23,7 +23,8 @@ def test_manifest_marks_write_capability_unavailable(tmp_path: Path) -> None:
         ],
     )
     write = next(item for item in manifest.capabilities if item.id == "settings.automatic_write")
-    assert write.support is CapabilitySupport.UNAVAILABLE
-    assert write.access == "blocked"
+    assert write.write_support is WriteSupport.UNSUPPORTED
+    assert write.adapter == "none"
+    assert write.transport == "none"
     path = service.save(manifest)
     assert json.loads(path.read_text(encoding="utf-8"))["research_only"] is True

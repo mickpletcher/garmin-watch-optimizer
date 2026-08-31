@@ -2,7 +2,7 @@
 
 ## TD-001: CLI framework
 
-The current CLI uses `argparse`. The product requirements propose a typed scripting surface, structured JSON output, and non-interactive modes. Revisit after the configuration engine exists.
+The current CLI uses `argparse`. Offline commands now share the domain services, but output is not uniformly selectable between human-readable and JSON modes. Add a consistent `--json` contract and non-interactive exit-code table before packaging.
 
 ## TD-002: Page object versioning
 
@@ -10,7 +10,7 @@ Semantic selectors are centralized but are not yet versioned by Garmin Connect r
 
 ## TD-003: Packaging and dependency lock
 
-Development dependencies use bounded minimum versions without a lock file. Add reproducible release locking, signed installers, SBOM generation, and dependency audit before the first release.
+Dependencies use bounded ranges without a release lock file. CI now audits dependencies and produces a CycloneDX SBOM. Add reproducible release locking, signed installers, and installer provenance before the first release.
 
 ## TD-004: GUI automation evidence
 

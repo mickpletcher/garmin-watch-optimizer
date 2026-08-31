@@ -17,6 +17,8 @@ This file supports `ARCHITECTURE.md`. It is not an architecture authority.
 - Parsed values pass through redaction before they enter a model.
 - Every discovered setting is read only.
 - Unknown labels default to high risk.
+- Recognized English labels map to stable semantic identifiers such as `system.units` and `power.battery_saver`.
+- Unmapped visible rows receive a deterministic `observed.<hash>` identifier and remain high risk unless evidence says otherwise.
 
 ## Drift behavior
 

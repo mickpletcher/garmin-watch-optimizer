@@ -869,7 +869,7 @@ Documentation confirms that Enduro 2 supports favorites, activity ordering, per-
 **Standard version:** 2.2
 **Project tier:** 2 (System) — deployed, integrated with the Garmin desktop ecosystem, operational consequences on failure (a bad write reaches physical hardware), potential multiple open-source contributors.
 **Tier rationale:** No client or external stakeholder with agreed scope and delivery sign-off exists — this is a solo-maintained open-source project. Per the standard's own guidance, adopting Tier 2C's contractual layer (frozen `REQUIREMENTS.md`, `DESCRIPTOR.md`, `AMENDMENTS.md`, mandatory `TRACEABILITY.md`) here would be the over-application the tier system exists to prevent. If this project later takes on a funder, sponsor, or client with formal sign-off, it promotes to Tier 2C at that point — promotion is additive and does not require rewriting what already exists.
-**Lifecycle mode:** Greenfield. Implementation has not meaningfully begun (Phase 0 is the first delivery phase).
+**Lifecycle mode:** Greenfield. Phase 0 read-only research and a transport-free portion of the Phase 1 configuration engine are implemented. Physical Phase 0 exit gates remain open.
 
 ### 24.1 Authority Mapping for this repository
 
@@ -891,7 +891,7 @@ Required at Tier 2. `PROJECT-STANDARD.md` and `.docs-authority.json` are the can
 | Development rules | `PROJECT-STANDARD.md` | Records this Authority Mapping and the declarations above as the living, current mapping (this section is the seed, not a substitute). |
 | Agent rules | `AGENTS.md` | Absorbs Section 20 per the authority note there. |
 
-Requirement traceability (`TRACEABILITY.md`) is not required at Tier 2, but given how granular this document's FR/AC numbering already is, adding it anyway is worth considering once Phase 1 begins — it costs little on top of an already-numbered requirement set and would let a future Tier 2C promotion happen without reconstruction.
+Requirement traceability is maintained in `TRACEABILITY.md`. It is not a separate product authority, but it maps the numbered requirements and acceptance criteria to current evidence and external gates.
 
 ### 24.2 Source-of-truth alignment
 
