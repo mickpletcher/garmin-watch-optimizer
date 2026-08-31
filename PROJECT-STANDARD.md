@@ -30,6 +30,15 @@ The machine-readable mirror is `.docs-authority.json`.
 
 Supporting evidence lives in `TRACEABILITY.md`, `docs/COMPATIBILITY.md`, `docs/ADAPTERS.md`, `docs/ENDURO2-RESEARCH.md`, and `docs/SECURITY.md`. Those files do not replace the authorities above.
 
+## Repository controls
+
+- `main` requires pull requests, strict status checks, resolved conversations, and linear history.
+- Required checks are the Windows and macOS Python 3.12 and 3.13 jobs, CodeQL analysis and code-scanning results, dependency audit, and dependency review.
+- Protection applies to administrators. Force pushes and branch deletion are blocked.
+- Squash merge is the only enabled merge method. Merged source branches are deleted automatically.
+- GitHub Actions receives read-only default workflow permissions and cannot approve pull requests.
+- Secret scanning, push protection, Dependabot alerts, Dependabot security update pull requests, and monthly dependency updates are enabled.
+
 ## Change classes
 
 - Class 0: Formatting and generated output with no behavior change.
@@ -59,5 +68,6 @@ A change is complete only when:
 - `python -m pytest`, Ruff, Mypy, `pip check`, schema drift verification, and `scripts/docs-check.ps1` pass.
 - The dependency audit reports no known vulnerability, excluding the unpublished editable project itself.
 - Required authorities and supporting evidence are updated.
+- Required repository checks pass before squash merge, and post-merge workflows pass on `main`.
 - The diff contains no runtime artifacts, credentials, personal identifiers, or generated package metadata.
 - Hardware-dependent claims remain pending until recorded physical evidence exists.
