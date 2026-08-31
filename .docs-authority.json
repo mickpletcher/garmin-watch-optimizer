@@ -1,0 +1,20 @@
+{
+  "standardVersion": "2.2",
+  "tier": "2",
+  "lifecycle": "greenfield",
+  "authorities": [
+    { "responsibility": "Project overview", "path": "README.md" },
+    { "responsibility": "Current assessment", "path": "ASSESSMENT.md" },
+    { "responsibility": "Architecture", "path": "ARCHITECTURE.md" },
+    { "responsibility": "Change history", "path": "CHANGELOG.md" },
+    { "responsibility": "Defect tracking", "path": "ISSUES.md" },
+    { "responsibility": "Technical debt", "path": "TECH-DEBT.md" },
+    { "responsibility": "Deferred improvements", "path": "FUTURE-UPGRADES.md" },
+    { "responsibility": "Validation", "path": "VALIDATION.md" },
+    { "responsibility": "Operations", "path": "OPERATIONS.md" },
+    { "responsibility": "Decision history", "path": "docs/decisions" },
+    { "responsibility": "Resolved history", "path": "docs/archive" },
+    { "responsibility": "Development rules", "path": "PROJECT-STANDARD.md" },
+    { "responsibility": "Agent rules", "path": "AGENTS.md" }
+  ]
+}

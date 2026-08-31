@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hierarchy rotation="0">
+  <node class="android.widget.FrameLayout" text="" clickable="false">
+    <node class="android.widget.TextView" text="Garmin Devices" clickable="false" />
+    <node class="android.widget.Button" text="Enduro 2" clickable="true">
+      <node class="android.widget.TextView" text="Connected" clickable="false" />
+    </node>
+  </node>
+</hierarchy>

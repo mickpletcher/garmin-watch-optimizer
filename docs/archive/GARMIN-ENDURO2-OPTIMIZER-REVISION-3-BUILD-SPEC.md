@@ -1,9 +1,9 @@
 # Garmin Watch Optimizer — Product Requirements Document
 
-**Document status:** Revision 4 — build specification
-**Primary repository:** `mickpletcher/garmin-watch-optimizer`  
-**Initial target device:** Garmin Enduro 2  
-**Target desktop platforms:** Windows and macOS  
+**Document status:** Revision 3 — build specification
+**Primary repository:** `mickpletcher/garmin-watch-optimizer`
+**Initial target device:** Garmin Enduro 2
+**Target desktop platforms:** Windows and macOS
 **License:** MIT
 
 ## 1. Purpose
@@ -80,14 +80,12 @@ Reverse-engineered or undocumented write operations must be isolated behind an e
 
 ### 5.1 Terms-of-service posture
 
-The official Garmin terms reviewed on 2026-08-30 do not affirmatively authorize Android UI automation. They prohibit automated access to Garmin Site content through means Garmin did not purposely provide and restrict downloaded software to personal, noncommercial use without exploitation or reverse engineering. Those terms do not clearly decide whether local accessibility automation of a user-controlled Garmin Connect Android installation is permitted. The project therefore adopts this conservative policy:
+UI automation of Garmin Express (Section 8.3) is a separate risk category from the technical safety measures elsewhere in this document: it may sit in a gray area of Garmin's desktop application EULA/ToS even though no protocol reverse engineering, authentication bypass, or cloud scraping occurs. The project's position:
 
-- Garmin Connect Android automation is an opt-in, local, read-only research probe. It is disabled by default and is not a production adapter.
-- The probe may activate the installed app, inspect visible accessibility hierarchy data, and navigate visible controls after the user has signed in manually.
-- The probe MUST NOT automate authentication, call undocumented Garmin cloud endpoints, run unattended, use a remote Appium server, or mutate a watch or Garmin account.
-- The application never stores or transmits Garmin account credentials and sanitizes every persisted artifact.
-- A production Android automation adapter or any physical write path requires written Garmin authorization or qualified legal review, a Class 4 ADR, and the Phase 0 physical-device safety exit gate.
-- This policy is not legal advice. The README and first-run UI MUST disclose the unresolved authorization status in plain language.
+- Automation is limited to the visible, documented UI surface of Garmin Express as installed by the user, using accessibility APIs rather than reverse-engineered protocols.
+- The application never scrapes, automates, or interacts with Garmin's cloud services or the Garmin Connect mobile app.
+- The application never stores or transmits Garmin account credentials.
+- This posture does not constitute a legal opinion; users of the project accept this risk, and the README/first-run notice MUST disclose it in plain language.
 
 ## 6. Target Users and Core Scenarios
 
@@ -536,7 +534,6 @@ ConfigurationAdapter
 4. **Connect IQ metadata adapter** — manages identifiers and documented settings without redistributing binaries.
 5. **Guided on-watch adapter** — produces model-specific instructions and captures user confirmation.
 6. **Simulator/fake adapter** — deterministic development and test device with no physical watch required.
-7. **Garmin Connect Android research probe** — opt-in, loopback-only, read-only accessibility inspection used during Phase 0; it is not eligible for production writes.
 
 ### 8.3 UI automation rules
 
@@ -549,8 +546,6 @@ UI automation MUST:
 - Keep Windows and macOS selectors in separate versioned page-object modules.
 - Support localization only after selectors and expected text are defined for that locale.
 - Never enter stored Garmin credentials. Authentication remains user controlled.
-- Keep Android research sessions on a loopback Appium endpoint and disabled by default.
-- Expose no Android research mutation method until the Section 5.1 authorization and Phase 0 gates are satisfied.
 
 Image matching and coordinate clicking MAY be used only as a clearly marked experimental fallback with explicit confirmation.
 

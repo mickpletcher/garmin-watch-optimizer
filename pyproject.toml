@@ -1,0 +1,79 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "garmin-watch-optimizer"
+version = "0.2.0"
+description = "Local, opt-in, read-only Garmin Connect Android research for Enduro 2 settings discovery"
+readme = "README.md"
+requires-python = ">=3.12"
+authors = [{ name = "Mick" }]
+dependencies = [
+  "pydantic>=2.8.0",
+  "PySide6>=6.7.0",
+  "Appium-Python-Client>=4.2.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.2.0",
+  "pytest-cov>=6.0.0",
+  "ruff>=0.6.0",
+  "mypy>=1.11.0",
+]
+
+[project.scripts]
+garmin-opt = "garmin_optimizer.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers --cov=garmin_optimizer --cov-report=term-missing --cov-fail-under=85"
+markers = [
+  "hardware: tests requiring connected Android hardware and Appium"
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+ignore_missing_imports = true
+
+[tool.coverage.run]
+branch = true
+omit = [
+  "src/garmin_optimizer/app.py",
+  "src/garmin_optimizer/cli.py",
+  "src/garmin_optimizer/config.py",
+  "src/garmin_optimizer/exceptions.py",
+  "src/garmin_optimizer/logging_utils.py",
+  "src/garmin_optimizer/ui/*",
+  "src/garmin_optimizer/services/adb_service.py",
+  "src/garmin_optimizer/services/appium_service.py",
+  "src/garmin_optimizer/services/garmin_app_discovery.py",
+  "src/garmin_optimizer/services/garmin_navigator.py",
+  "src/garmin_optimizer/services/read_only_audit.py",
+]
+
+[tool.coverage.report]
+fail_under = 85
+show_missing = true
+skip_covered = true
+exclude_also = [
+  "if TYPE_CHECKING:",
+  "if __name__ == .__main__.:",
+]

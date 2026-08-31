@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hierarchy rotation="0">
+  <node class="android.widget.FrameLayout" text="" clickable="false">
+    <node class="android.widget.TextView" text="Enduro 2" clickable="false" />
+    <node class="android.widget.TextView" text="Connected" clickable="false" />
+    <node class="android.widget.TextView" text="Software Version" clickable="false" />
+    <node class="android.widget.TextView" text="18.16" clickable="false" />
+    <node class="android.widget.Button" text="Device Settings" clickable="true" />
+  </node>
+</hierarchy>

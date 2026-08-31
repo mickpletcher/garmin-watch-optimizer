@@ -1,0 +1,218 @@
+from __future__ import annotations
+
+import argparse
+import json
+import platform
+import sys
+
+from garmin_optimizer.config import AppConfig
+from garmin_optimizer.exceptions import AndroidUiResearchDisabledError, OptimizerError
+from garmin_optimizer.logging_utils import setup_logging
+from garmin_optimizer.models import DiscoveredSetting, RiskLevel
+from garmin_optimizer.services.adb_service import AdbService
+from garmin_optimizer.services.appium_service import AppiumService
+from garmin_optimizer.services.capability_service import CapabilityService
+from garmin_optimizer.services.garmin_app_discovery import GarminAppDiscoveryService
+from garmin_optimizer.services.journal_service import TransactionJournalService
+from garmin_optimizer.services.read_only_audit import ReadOnlyAuditService
+from garmin_optimizer.services.redaction import RedactionService
+from garmin_optimizer.services.report_service import PocReportService
+from garmin_optimizer.services.snapshot_service import SettingsSnapshotService
+from garmin_optimizer.services.ui_discovery import UiDiscoveryService
+from garmin_optimizer.services.write_simulation import SimulationHooks, WriteSimulationService
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(prog="garmin-opt")
+    sub = parser.add_subparsers(dest="command", required=True)
+
+    sub.add_parser("doctor")
+
+    adb = sub.add_parser("adb")
+    adb_sub = adb.add_subparsers(dest="adb_command", required=True)
+    devices = adb_sub.add_parser("devices")
+    devices.add_argument("--show-serial", action="store_true")
+
+    garmin = sub.add_parser("garmin")
+    garmin_sub = garmin.add_subparsers(dest="garmin_command", required=True)
+    detect = garmin_sub.add_parser("detect")
+    detect.add_argument("--serial", default=None)
+
+    appium = sub.add_parser("appium")
+    appium_sub = appium.add_subparsers(dest="appium_command", required=True)
+    appium_sub.add_parser("check")
+
+    audit = sub.add_parser("audit")
+    audit.add_argument("--serial", default=None)
+    audit.add_argument("--watch", default=None)
+    audit.add_argument("--enable-android-ui-research", action="store_true")
+
+    simulate = sub.add_parser("simulate-write-test")
+    simulate.add_argument("--confirm-simulation", action="store_true")
+    simulate.add_argument(
+        "--simulate-failure",
+        choices=["none", "ambiguous", "verification", "restore"],
+        default="none",
+    )
+
+    sub.add_parser("gui")
+    return parser
+
+
+def _base_services() -> tuple[AppConfig, RedactionService]:
+    config = AppConfig.from_env()
+    redactor = RedactionService()
+    setup_logging(config.logs_dir, redactor)
+    return config, redactor
+
+
+def _select_device(adb: AdbService, serial: str | None):
+    return adb.select_device(adb.list_devices(), serial)
+
+
+def _require_research_opt_in(args: argparse.Namespace, config: AppConfig) -> None:
+    if not args.enable_android_ui_research and not config.android_ui_research_enabled:
+        raise AndroidUiResearchDisabledError(
+            "Android UI research is disabled. Review docs/SECURITY.md, then pass "
+            "--enable-android-ui-research or set GARMIN_OPT_ENABLE_ANDROID_UI_RESEARCH=1."
+        )
+
+
+def _simulate_write(config: AppConfig, redactor: RedactionService, args: argparse.Namespace) -> int:
+    setting = DiscoveredSetting(
+        id="simulation.units",
+        screen_path=["Simulation"],
+        label="Units",
+        current_value="Statute",
+        selectable_values=["Statute", "Metric"],
+        confidence=1.0,
+        risk_level=RiskLevel.LOW,
+        writable_candidate=True,
+        notes="In-memory simulation fixture. No device transport exists.",
+    )
+    state_value = "Statute"
+    call_count = 0
+
+    def set_value(_: DiscoveredSetting, value: str) -> None:
+        nonlocal call_count, state_value
+        call_count += 1
+        if args.simulate_failure == "ambiguous" and call_count == 1:
+            state_value = value
+            raise RuntimeError("injected transport failure after simulated mutation")
+        if args.simulate_failure == "verification" and call_count == 1:
+            return
+        if args.simulate_failure == "restore" and call_count > 1:
+            return
+        state_value = value
+
+    hooks = SimulationHooks(
+        read_current=lambda _: state_value,
+        list_values=lambda _: ["Statute", "Metric"],
+        set_value=set_value,
+    )
+    journal = TransactionJournalService(config.journals_dir, redactor)
+    transaction = WriteSimulationService().execute(
+        setting=setting,
+        temporary_value="Metric",
+        user_confirmed=args.confirm_simulation,
+        hooks=hooks,
+        journal=journal,
+    )
+    print(transaction.model_dump_json(indent=2))
+    print(f"Journal: {journal.path_for(transaction)}")
+    print("Device transport used: No")
+    return 0
+
+
+def run(args: argparse.Namespace) -> int:
+    config, redactor = _base_services()
+
+    if args.command == "simulate-write-test":
+        return _simulate_write(config, redactor, args)
+    if args.command == "gui":
+        from garmin_optimizer.ui.main_window import launch_gui
+
+        return launch_gui()
+
+    adb = AdbService()
+    appium = AppiumService(config.appium_url)
+    app_discovery = GarminAppDiscoveryService(adb)
+
+    if args.command == "doctor":
+        print(f"Python: {platform.python_version()}")
+        print(f"Android UI research enabled: {config.android_ui_research_enabled}")
+        problems = 0
+        try:
+            print(f"ADB: {adb.version()}")
+            print(f"Devices: {len(adb.list_devices())}")
+        except OptimizerError as exc:
+            problems += 1
+            print(f"ADB: blocked ({redactor.redact_text(str(exc))})")
+        try:
+            status = appium.check_endpoint()
+            print(f"Appium ready: {status['ready']}")
+            problems += int(not status["ready"])
+        except OptimizerError as exc:
+            problems += 1
+            print(f"Appium: blocked ({redactor.redact_text(str(exc))})")
+        print("Physical write capability: blocked")
+        return 1 if problems else 0
+
+    if args.command == "adb" and args.adb_command == "devices":
+        for item in adb.list_devices():
+            payload = item.model_dump(mode="json")
+            if not args.show_serial:
+                payload = redactor.redact_data(payload)
+            print(json.dumps(payload))
+        return 0
+
+    if args.command == "garmin" and args.garmin_command == "detect":
+        device = _select_device(adb, args.serial)
+        garmin_result = app_discovery.detect_connect(device.serial)
+        print(garmin_result.selected.model_dump_json(indent=2) if garmin_result.selected else "{}")
+        return 0
+
+    if args.command == "appium" and args.appium_command == "check":
+        print(json.dumps(appium.check_endpoint(), indent=2))
+        return 0
+
+    if args.command == "audit":
+        _require_research_opt_in(args, config)
+        ui_discovery = UiDiscoveryService(config.diagnostics_dir, redactor, config.diagnostics_enabled)
+        capability_service = CapabilityService(config.manifests_dir, redactor)
+        audit_service = ReadOnlyAuditService(
+            adb=adb,
+            appium=appium,
+            app_discovery=app_discovery,
+            ui_discovery=ui_discovery,
+            capabilities=capability_service,
+        )
+        audit_result = audit_service.run(args.serial, args.watch or config.target_watch_model)
+        snapshot_path = SettingsSnapshotService(config.snapshots_dir, redactor).save_snapshot(audit_result.snapshot)
+        manifest_path = capability_service.save(audit_result.manifest)
+        report_status, report_path = PocReportService(config.reports_dir, redactor).generate(audit_result.snapshot)
+        print(f"Snapshot: {snapshot_path}")
+        print(f"Capability manifest: {manifest_path}")
+        print(f"Report: {report_path}")
+        print(f"Classification: level {report_status.level} ({report_status.summary})")
+        return 0
+
+    raise RuntimeError("Unsupported command")
+
+
+def main() -> None:
+    parser = build_parser()
+    args = parser.parse_args()
+    try:
+        code = run(args)
+    except OptimizerError as exc:
+        print(f"ERROR: {RedactionService().redact_text(str(exc))}", file=sys.stderr)
+        raise SystemExit(2) from exc
+    except Exception as exc:
+        print(f"ERROR: {RedactionService().redact_text(str(exc))}", file=sys.stderr)
+        raise SystemExit(1) from exc
+    raise SystemExit(code)
+
+
+if __name__ == "__main__":
+    main()

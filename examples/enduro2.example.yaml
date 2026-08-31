@@ -1,0 +1,14 @@
+schema_version: "1.0"
+device:
+  model: "Enduro 2"
+  firmware: null
+settings:
+  units: metric
+  time_format: 24_hour
+  timezone: auto_gps
+  favorite_activities:
+    - trail_run
+    - bike
+
+# This is a non-personal schema example. The current Phase 0 application does
+# not import, plan, or apply this file.
